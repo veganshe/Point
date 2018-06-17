@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
-//use App\Test;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Model\User as user;
-
 
 
 class UserController extends Controller
@@ -33,10 +31,30 @@ class UserController extends Controller
         return response()->json($user);
     }
 
-    
-    public function profile($id) {
-        $abc = user::find(1);
-        return response()->json($abc);
+    /**
+     * User Profile
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function profile(Request $request, $id) {
+
+        $user = DB::table('user_profile')->where('uid',$id)->first();
+
+        return response()->json($user);
+    }
+
+    public function profilea(Request $request, $id) {
+
+        $user = DB::select("select * from user_profile as a,user_extras as b where a.uid = b.user_id and a.uid = ?",[1]);
+
+
+//        echo $request->route('id2');
+//        $id = $request->input('id');
+//        $abc = user::find();
+//        echo "我的ID：".$request->input('page');
+//        echo "我的ID：".$abc->tags_count;
+        return response()->json($user);
     }
 
 
