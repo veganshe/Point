@@ -32,6 +32,19 @@ Route::group(['prefix' => 'v2'], function(RouteContract $api) {
         echo $request->ip();
     });
 
+    // 用户设置
+    $api->group(['prefix' => 'user/settings'], function (RouteContract $api) {
+        // 设置简介
+        $api->post('/present', 'SettingController@present');
+        // 设置性别
+        $api->post('/sex', 'SettingController@sex');
+        // 设置生日
+        $api->post('/birthday', 'SettingController@birthday');
+        // 设置兴趣
+        $api->post('/interest', 'SettingController@interest');
+
+    });
+
     // 用户组
     $api->group(['prefix' => 'user'], function(RouteContract $api) {
         // 用户页面
