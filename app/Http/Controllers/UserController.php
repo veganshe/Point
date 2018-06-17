@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+//use App\Test;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Model\User as user;
+
+
 
 class UserController extends Controller
 {
@@ -29,8 +33,10 @@ class UserController extends Controller
         return response()->json($user);
     }
 
+    
     public function profile($id) {
-
+        $abc = user::find(1);
+        return response()->json($abc);
     }
 
 

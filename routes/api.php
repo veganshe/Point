@@ -36,6 +36,8 @@ Route::group(['prefix' => 'v2'], function(RouteContract $api) {
     $api->group(['prefix' => 'user'], function(RouteContract $api) {
         // 用户页面
         $api->get('/{id}', 'UserController@profile');
+        // 用户简介
+        $api->get('/{id}/profile', 'UserController@profile');
 
         $api->get('/{id}/abc',function ($id) {
             echo '我的id:'.$id;
