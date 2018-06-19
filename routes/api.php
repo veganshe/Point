@@ -51,10 +51,26 @@ Route::group(['prefix' => 'v2'], function(RouteContract $api) {
         $api->get('/{id}', 'UserController@profile');
         // 用户简介
         $api->get('/{id}/profile', 'UserController@profile');
+    });
 
-        $api->get('/{id}/abc',function ($id) {
-            echo '我的id:'.$id;
-        });
+    // 文章模块
+    $api->group(['prefix' => 'post'], function(RouteContract $api) {
+    	// 文章喜欢
+    	$api->post('/{id}/like', 'PostController@like');
+    	// 取消文章喜欢
+    	$api->post('/{id}/unlike', 'PostController@unlike');
+    	// 文章收藏
+    	$api->post('/{id}/collection', 'PostController@collection');
+    	// 取消文章收藏
+    	$api->get('/{id}/uncollection', 'PostController@uncollection');
+    });
+
+    // 评论组模块
+    $api->group(['prefix' => 'comment'],function(RouteContract $api) {
+    	// 评论喜欢模块
+    	$api->post('/{id}/like', 'CommentController@like');
+    	// 取消评论喜欢模块
+    	$api->post('/{id}/unlike', 'CommentController@unlike');
     });
 
 });
