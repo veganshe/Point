@@ -56,11 +56,13 @@ Route::group(['prefix' => 'v2'], function(RouteContract $api) {
         // 取消用户关注
         $api->post('/{id}/unfollow', 'UserController@unfollow');
         // 正在关注
-        $api->post('/{id}/following', 'UserController@following');
+        $api->get('/{id}/following', 'UserController@following');
         // 我的粉丝
-        $api->post('/{id}/follower', 'UserController@follower');
+        $api->get('/{id}/follower', 'UserController@follower');
         // 我关注的标签
     	$api->post('/{id}/tag', 'TagController@following');
+        
+
     });
 
     // 文章模块
@@ -89,6 +91,7 @@ Route::group(['prefix' => 'v2'], function(RouteContract $api) {
     	$api->post('/{id}/follow', 'TagController@follow');
     	// 取消标签关注
     	$api->post('/{id}/unfollow', 'TagController@unfollow');
+
     });
 
 });
