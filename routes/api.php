@@ -51,6 +51,14 @@ Route::group(['prefix' => 'v2'], function(RouteContract $api) {
         $api->get('/{id}', 'UserController@profile');
         // 用户简介
         $api->get('/{id}/profile', 'UserController@profile');
+        // 用户关注
+        $api->post('/{id}/follow', 'UserController@follow');
+        // 取消用户关注
+        $api->post('/{id}/unfollow', 'UserController@unfollow');
+        // 正在关注
+        $api->post('/{id}/following', 'UserController@following');
+        // 我的粉丝
+        $api->post('/{id}/follower', 'UserController@follower');
     });
 
     // 文章模块

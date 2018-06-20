@@ -57,5 +57,47 @@ class UserController extends Controller
         return response()->json($user);
     }
 
+    public function follow(Request $request) {
+    	$user_id = $request->input('uid', 0);
+    	$follower_id = $request->input('followerid', 0);
+
+    	$followid = DB::table('user_follow')->where(['user_id' => $user_id,'follower_id' => $follower_id])->first();
+
+    	if($followid == null) {
+    		$data = [
+    			'user_id' => $user_id,
+    			'follower_id' => $follower_id
+    		];
+    		$followid = DB::table('user_follow')->insertGetId($data);
+
+    		if($followid > 0) {
+    			// 我的关注者人数 + 1
+    			DB::table('user_extras')->where('user_id',$follower_id)->increment('followings_count',1);
+    			// 关注者的粉丝人数 + 1
+    			DB::table('user_extras')->where('user_id',$user_id)->increment('followers_count',1);
+    		}
+    	}
+    }
+
+    public function unfollow(Request $request) {
+    	$user_id = $request->input('uid', 0);
+    	$follower_id = $request->input('followerid', 0);
+
+    	$followid = DB::table('user_follow')->where(['user_id' => $user_id,'follower_id' => $follower_id])->value('id');
+
+    	if($followid > 0) {
+    		// 删除关注对应记录
+    		DB::table('user_follow')->where('id',$followid)->delete();
+    		// 我的关注者人数 - 1
+    		DB::table('user_extras')->where('user_id',$follower_id)->decrement('followings_count',1);
+    		// 关注者的粉丝人数 - 1
+    		DB::table('user_extras')->where('user_id',$user_id)->decrement('followers_count',1);
+    	}
+    }
+
+    public function following(Request $request) { }
+
+    public function follower(Request $request) { }
+
 
 }
