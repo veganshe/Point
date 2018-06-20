@@ -59,6 +59,8 @@ Route::group(['prefix' => 'v2'], function(RouteContract $api) {
         $api->post('/{id}/following', 'UserController@following');
         // 我的粉丝
         $api->post('/{id}/follower', 'UserController@follower');
+        // 我关注的标签
+    	$api->post('/{id}/tag', 'TagController@following');
     });
 
     // 文章模块
