@@ -87,6 +87,8 @@ Route::group(['prefix' => 'v2'], function(RouteContract $api) {
 
     // 标签模块
     $api->group(['prefix' => 'tag'],function(RouteContract $api) {
+        // 标签首页
+        $api->get('/index', 'TagController@index');
     	// 标签关注
     	$api->post('/{id}/follow', 'TagController@follow');
     	// 取消标签关注

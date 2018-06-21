@@ -7,6 +7,38 @@ use Illuminate\Support\Facades\DB;
 
 class TagController extends Controller
 {
+
+    public function index(Request $request) {
+        $user_id = $request->input('uid',0);
+
+        // 获取所有标签大类
+        $tags = DB::table('tag_categories')->orderBy('weight','desc')->get();
+
+        // 获取我关注的标签
+        if($user_id > 0) {
+            $fti = DB::table('user_tag_follow')->where('user_id',$user_id)->pluck('tag_id');
+            // 集合转换为数组
+            $ftids = $fti->toArray();
+        }
+
+        foreach($tags as $tag_categories) {
+            // 标签关系对应表
+            $tagids = DB::table('tag_relationship')->where('tag_cateid',$tag_categories->id)->pluck('tag_id'); 
+            $tag = DB::table('tags')
+                      ->where('isshow',1)
+                      ->whereIn('id',$tagids)
+                      ->get();
+            // 判断是否有关注
+            if($user_id > 0) {
+                foreach ($tag as $key) {
+                    $key->following = in_array($key->id, $ftids) ? 1 : 0;
+                }
+            }
+            $tag_categories->tags = $tag;
+        }
+        return response()->json($tags);
+    }
+
     public function follow(Request $request) {
     	$user_id = $request->input('uid', 0);
     	$tag_id = $request->input('tagid', 0);
