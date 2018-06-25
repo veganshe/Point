@@ -19,6 +19,16 @@ $api = app('Dingo\Api\Routing\Router');
 $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($api) {
     $api->get('/me', 'ProfileController@test');
 
+
+    $api->post('/register', 'RegisterController@register');
+    $api->post('/login','AuthController@login');
+
+    $api->group(['middleware' => ['auth:api']], function($api) {
+        
+        $api->post('/logout','AuthController@logout');
+        $api->post('/refresh','AuthController@refresh');
+        $api->post('/me','AuthController@me');
+    });
 });
 
 /*
