@@ -14,6 +14,13 @@ use Illuminate\Contracts\Routing\Registrar as RouteContract;
 |
 */
 
+$api = app('Dingo\Api\Routing\Router');
+
+$api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($api) {
+    $api->get('/me', 'ProfileController@test');
+
+});
+
 /*
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
@@ -24,7 +31,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 //Route::get('hello',function(Request $request) {
 //	echo $request->ip();
 //});
-
+/*
 Route::group(['prefix' => 'v2'], function(RouteContract $api) {
 
     // Demo
@@ -93,10 +100,11 @@ Route::group(['prefix' => 'v2'], function(RouteContract $api) {
     	$api->post('/{id}/follow', 'TagController@follow');
     	// 取消标签关注
     	$api->post('/{id}/unfollow', 'TagController@unfollow');
-
+        
     });
 
-});
+
+});*/
 
 
 
