@@ -28,6 +28,8 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($ap
         $api->post('/logout','AuthController@logout');
         $api->post('/refresh','AuthController@refresh');
         $api->post('/me','AuthController@me');
+
+        $api->post('/test','TestController@getUser');
     });
 });
 
