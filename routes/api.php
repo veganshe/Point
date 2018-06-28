@@ -23,13 +23,33 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($ap
     $api->post('/register', 'RegisterController@register');
     $api->post('/login','AuthController@login');
 
+    /*-------------------- 登录注册模块 --------------------*/
     $api->group(['middleware' => ['auth:api']], function($api) {
         
         $api->post('/logout','AuthController@logout');
         $api->post('/refresh','AuthController@refresh');
         $api->post('/me','AuthController@me');
-
         $api->post('/test','TestController@getUser');
+    });
+
+    /*-------------------- 用户模块 --------------------*/
+    $api->group(['prefix' => 'user'], function($api) {
+        $api->get('/{id}', 'UserController@index');  /* 用户首页 */
+    });
+
+    /*-------------------- 用户中心模块 --------------------*/
+    $api->group(['prefix' => 'profile','middleware' => ['auth:api']], function($api) {
+        $api->get('/index', 'ProfileController@index');  /* 用户属性首页 */
+        $api->post('/setting', 'ProfileController@setting');  /* 用户相关设置 */
+        $api->get('/getschool', 'ProfileController@getschool');  /* 搜索学校 */
+        $api->post('/setschool', 'ProfileController@setschool');  /* 设置学校 */
+    });
+
+    /*-------------------- 帮助模块 --------------------*/
+    $api->group(['prefix' => 'update'], function($api) {
+        $api->get('/about', 'UpdateController@about');  /* 关于我们 */
+        $api->get('/appupdate', 'UpdateController@appupdate'); /* 更新列表 */
+        $api->get('/appupdate/{id}', 'UpdateController@post'); /* 更新详细内容 */
     });
 });
 
