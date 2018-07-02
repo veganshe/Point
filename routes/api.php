@@ -50,6 +50,11 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($ap
         $api->post('/setschool', 'ProfileController@setschool');  /* 设置学校 */
     });
 
+    /*-------------------- 文章模块 --------------------*/
+    $api->group(['prefix' => 'post'], function($api) {
+        $api->post('/publish', 'PostController@publish');  /* 文章发布 */
+    });
+
     /*-------------------- 标签模块 --------------------*/
     $api->group(['prefix' => 'tag'], function($api) {
         $api->get('/index', 'TagController@index');  /* 标签首页 */
