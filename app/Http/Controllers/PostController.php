@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class PostController extends Controller
 {
     public function like(Request $request) {
-    	$user_id = $request->input('uid');
+    	$user_id = $JWTAuth::parseToken()->authenticate()->id;
     	$post_id = $request->input('postid');
 
         $like_id = DB::table('post_like')->where(['user_id'=> $user_id,'post_id'=>$post_id])->value('id');

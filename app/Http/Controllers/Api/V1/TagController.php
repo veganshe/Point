@@ -1,20 +1,21 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use JWTAuth;
 
-class TagController extends Controller
+class TagController extends BaseController
 {
-
+	// 标签首页
     public function index(Request $request) {
-        $user_id = $request->input('uid',0);
+        $user_id = $JWTAuth::parseToken()->authenticate()->id;
 
         // 获取所有标签大类
         $tags = DB::table('tag_categories')->orderBy('weight','desc')->get();
 
-        // 获取我关注的标签
+        // 获取我关注的标签(以后改为 Redis 获取)
         if($user_id > 0) {
             $fti = DB::table('user_tag_follow')->where('user_id',$user_id)->pluck('tag_id');
             // 集合转换为数组
@@ -28,19 +29,20 @@ class TagController extends Controller
                       ->where('isshow',1)
                       ->whereIn('id',$tagids)
                       ->get();
+            
             // 判断是否有关注
-            if($user_id > 0) {
-                foreach ($tag as $key) {
-                    $key->following = in_array($key->id, $ftids) ? 1 : 0;
-                }
+            foreach ($tag as $key) {
+                $key->following = in_array($key->id, $ftids) ? 1 : 0;
             }
+            
             $tag_categories->tags = $tag;
         }
         return response()->json($tags);
     }
 
+    // 关注标签
     public function follow(Request $request) {
-    	$user_id = $request->input('uid', 0);
+    	$user_id = $JWTAuth::parseToken()->authenticate()->id;
     	$tag_id = $request->input('tagid', 0);
 
     	$id = DB::table('user_tag_follow')->where(['user_id' => $user_id,'tag_id' => $tag_id])->first();
@@ -57,12 +59,21 @@ class TagController extends Controller
     			DB::table('user_extras')->where('user_id',$user_id)->increment('tags_count',1);
     			// 标签被关注数 + 1
     			DB::table('tags')->where('id',$tag_id)->increment('follow_count',1);
+
+    			// 更新我的关注 Redis
+
+    			return response()->json(['message'=>'success','status_code' => 200]);
+    		} else {
+    			return response()->json(['message'=>'Following tag is fail','status_code' => 500]);
     		}
+    	} else {
+    		return response()->json(['message'=>'Tag already followed','status_code' => 500]);
     	}
     }
 
+    // 取消标签关注
     public function unfollow(Request $request) {
-    	$user_id = $request->input('uid', 0);
+    	$user_id = $JWTAuth::parseToken()->authenticate()->id;
     	$tag_id = $request->input('tagid', 0);
 
     	$id = DB::table('user_tag_follow')->where(['user_id' => $user_id,'tag_id' => $tag_id])->value('id');
@@ -74,30 +85,14 @@ class TagController extends Controller
     		DB::table('user_extras')->where('user_id',$user_id)->decrement('tags_count',1);
     		// 标签被关注数 - 1
     		DB::table('tags')->where('id',$tag_id)->decrement('follow_count',1);
+
+    		// 更新 Redis 我关注的标签（未完成）
+
+
+    		return response()->json(['message'=>'success','status_code' => 200]);
+
+    	} else {
+    		return response()->json(['message'=>'Tag already unfollowed','status_code' => 500]);
     	}
-    }
-
-    public function following(Request $request) {
-    	$user_id = $request->input('uid',0);
-    	$page = $request->input('p',1);
-
-    	// 获取我标签关注总数
-    	$tagCount = DB::table('user_tag_follow')->where('user_id',$user_id)->count();
-    	$pageNum = 20;
-    	$totalPage = ceil($tagCount/$pageNum);
-
-    	// 获取我关注的所有标签id
-    	$myTagArr = DB::table('user_tag_follow')->where('user_id',$user_id)->pluck('tag_id');
-
-    	//获取标签数组
-    	$tags = DB::table('tags')->forPage($page,$pageNum)->whereIn('id',$myTagArr)->get();
-
-    	$data = [
-    		'count' => $tagCount,
-    		'totalpage' => $totalPage,
-    		'tags' => $tags
-    	];
-
-    	return response()->json($data);
     }
 }

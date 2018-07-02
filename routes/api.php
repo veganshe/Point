@@ -35,6 +35,11 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($ap
     /*-------------------- 用户模块 --------------------*/
     $api->group(['prefix' => 'user'], function($api) {
         $api->get('/{id}', 'UserController@index');  /* 用户首页 */
+        $api->post('/{id}/follow', 'UserController@follow');   /* 用户关注 */
+        $api->post('/{id}/unfollow', 'UserController@unfollow');  /* 用户取消关注 */
+        $api->get('/{id}/following', 'UserController@following');   /* 用户正在关注的 */
+        $api->get('/{id}/followers', 'UserController@followers');   /* 别人正在关注我的 */
+        $api->get('/tag', 'UserController@tag');   /* 我使用的标签 */
     });
 
     /*-------------------- 用户中心模块 --------------------*/
@@ -43,6 +48,13 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($ap
         $api->post('/setting', 'ProfileController@setting');  /* 用户相关设置 */
         $api->get('/getschool', 'ProfileController@getschool');  /* 搜索学校 */
         $api->post('/setschool', 'ProfileController@setschool');  /* 设置学校 */
+    });
+
+    /*-------------------- 标签模块 --------------------*/
+    $api->group(['prefix' => 'tag'], function($api) {
+        $api->get('/index', 'TagController@index');  /* 标签首页 */
+        $api->post('/{id}/follow', 'TagController@follow');  /* 关注标签 */
+        $api->post('/{id}/unfollow', 'TagController@unfollow');/* 取消标签关注 */
     });
 
     /*-------------------- 帮助模块 --------------------*/
