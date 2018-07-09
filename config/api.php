@@ -228,5 +228,5 @@ return [
         ],
 
     ],
-
+    'img_cdn' => 'http://img.point.com',
 ];

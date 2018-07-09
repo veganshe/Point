@@ -213,4 +213,5 @@ return [
 
     ],
 
+    'img_cdn' => 'img.point.com',
 ];

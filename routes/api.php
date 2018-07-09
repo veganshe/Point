@@ -48,11 +48,22 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($ap
         $api->post('/setting', 'ProfileController@setting');  /* 用户相关设置 */
         $api->get('/getschool', 'ProfileController@getschool');  /* 搜索学校 */
         $api->post('/setschool', 'ProfileController@setschool');  /* 设置学校 */
+        $api->post('/avatar', 'ProfileController@avatar'); /* 设置头像 */
     });
 
     /*-------------------- 文章模块 --------------------*/
     $api->group(['prefix' => 'post'], function($api) {
         $api->post('/publish', 'PostController@publish');  /* 文章发布 */
+        $api->post('/{id}/like', 'PostController@like');  /* 文章喜欢 */
+        $api->post('/{id}/unlike', 'PostController@unlike');  /* 取消文章喜欢 */
+    });
+
+    /*-------------------- 评论模块 --------------------*/
+    $api->group(['prefix' => 'comment'], function($api) {
+        $api->post('/publish', 'CommentController@publish');  /* 评论发布 */
+        $api->post('/{id}/like', 'CommentController@like');  /* 评论喜欢 */
+        $api->post('/{id}/unlike', 'CommentController@unlike');  /* 取消文章喜欢 */
+        $api->post('/{id}/delete', 'CommentController@masking');  /* 屏蔽或删除评论 */
     });
 
     /*-------------------- 标签模块 --------------------*/

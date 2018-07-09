@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Model\UserProfile;
 use App\Model\School;
+use App\Tool\ImageUpload;
 use JWTAuth;
 
 class ProfileController extends BaseController
@@ -67,5 +68,29 @@ class ProfileController extends BaseController
     	$userProfile->where('uid',$user_id)->update($data);
 
     	return response()->json(['message' => 'success','status_code' => 200]);
+    }
+
+    // 上传用户头像
+    public function avatar(Request $request, ImageUpload $upload, UserProfile $userProfile) {
+        $avatar = $request->file('avatar');
+        $user_id = JWTAuth::parseToken()->authenticate()->id;
+
+        if(! $request->hasFile('avatar')) {
+            return response()->json(['message' => 'Avatar is empty','status_code' => 500]);
+        }
+
+        $result = $upload->avatar($avatar,'avatar',$user_id);
+
+        if($result) {
+            $avatar_url =  config('api.img_cdn').'/'.$result['path'];
+
+            $data = [
+                'avatar' => $avatar_url,
+            ];
+
+            $userProfile->where('uid',$user_id)->update($data);
+
+            return response()->json(['message' => 'success','status_code' => 200]);
+        }
     }
 }

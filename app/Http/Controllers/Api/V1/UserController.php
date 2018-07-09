@@ -17,6 +17,10 @@ class UserController extends BaseController
                         ->join('user_extras','user_profile.uid','=','user_extras.user_id')
                         ->where('user_profile.uid', $id)
                         ->first();
+        if(!$userinfo) {
+            return response()->json(['message'=>'user not exist','status_code' => 500]);
+        }
+
         // 获取 Redis 我的关注人员id
         $followuids = [];
 
@@ -166,4 +170,5 @@ class UserController extends BaseController
 
         return response()->json($tags);
     }
+
 }

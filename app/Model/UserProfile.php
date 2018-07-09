@@ -8,7 +8,7 @@ use App\Model\UserExtra;
 class UserProfile extends Model
 {
     // 与模型关联的数据表
-    protected $table = 'user_profiles';
+    protected $table = 'user_profile';
     // 主键 ID
     protected $primaryKey = 'uid';
     // 关闭日期
