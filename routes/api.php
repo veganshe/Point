@@ -20,8 +20,18 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($ap
     $api->get('/me', 'ProfileController@test');
 
 
-    $api->post('/register', 'RegisterController@register');
+    // $api->post('/register', 'RegisterController@register');
     $api->post('/login','AuthController@login');
+
+    /*-------------------- 用户登录模块 --------------------*/
+    $api->group(['prefix' => 'account'], function($api) {
+        $api->post('/updatetoken', 'AccountController@updateToken');
+        $api->post('/sendcode', 'VerifyCodeController@send');
+        $api->post('/checkcode', 'VerifyCodeController@check');
+        $api->post('/register', 'AccountController@register');
+        $api->post('/restpassword', 'AccountController@restpwd');
+        $api->post('/query', 'AccountController@query');
+    });
 
     /*-------------------- 登录注册模块 --------------------*/
     $api->group(['middleware' => ['auth:api']], function($api) {

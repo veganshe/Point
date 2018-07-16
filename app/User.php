@@ -35,4 +35,16 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims() {
         return [];
     }
+
+    public function createPassword(string $password)
+    {
+        $this->password = app('hash')->make($password);
+
+        return $this;
+    }
+
+    public function verifyPassword(string $password)
+    {
+        return $this->password && app('hash')->check($password, $this->password);
+    }
 }

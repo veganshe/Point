@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use JWTAuth;
 
 class AuthController extends BaseController
@@ -23,12 +24,17 @@ class AuthController extends BaseController
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login()
+    public function login(Request $request)
     {
-        $credentials = request(['email', 'password']);
+        $login = $request->input('phone', '');
+        $credentials = [
+            'phone' => $login,
+            'password' => $request->input('password')
+        ];
 
         if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['message' => 'Incorrect username or password.',
+                                     'status_code' => 500]);
         }
 
         return $this->respondWithToken($token);
@@ -76,9 +82,10 @@ class AuthController extends BaseController
     protected function respondWithToken($token)
     {
         return response()->json([
-            'access_token' => $token,
+            'token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth()->factory()->getTTL() * 60,
+            'refresh_ttl' => config('jwt.refresh_ttl'),
         ]);
     }
 }
