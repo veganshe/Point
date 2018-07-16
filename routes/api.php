@@ -19,6 +19,8 @@ $api = app('Dingo\Api\Routing\Router');
 $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($api) {
     $api->get('/me', 'ProfileController@test');
 
+    $api->get('/teststr', 'PostController@teststr');
+
 
     // $api->post('/register', 'RegisterController@register');
     $api->post('/login','AuthController@login');
@@ -64,6 +66,7 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($ap
     /*-------------------- 文章模块 --------------------*/
     $api->group(['prefix' => 'post'], function($api) {
         $api->post('/publish', 'PostController@publish');  /* 文章发布 */
+        $api->get('/{id}/edit', 'PostController@edit');  /* 修改文章 */
         $api->post('/{id}/like', 'PostController@like');  /* 文章喜欢 */
         $api->post('/{id}/unlike', 'PostController@unlike');  /* 取消文章喜欢 */
     });

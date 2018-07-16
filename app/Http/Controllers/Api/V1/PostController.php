@@ -9,6 +9,18 @@ use JWTAuth;
 
 class PostController extends BaseController
 {
+    public function teststr() {
+        // $str = '<div><img>kalskjdflk<photo>2</photo>qwjeoifjwqaejf我###<photo>6935</photo>秒发嗯要乃么》';
+        // $abc = '/<photo>(\d+)<\/photo>/';
+        
+        // preg_match_all($abc, $str, $result);
+
+        $tagids = '1,3,56,83,1,56,3,4,7,3,7';
+
+        $tagArr = array_unique(explode(',', $tagids));
+        print_r($tagArr);
+    }
+
 	// 发布文章
     public function publish(Request $request) {
     	$title = $request->input('title');
@@ -16,15 +28,20 @@ class PostController extends BaseController
     	$subject = $request->input('subject');
     	$content = $request->input('content');
     	$comment = $request->input('comment',0);
-    	$bigpic = $request->input('bigpic');
     	$tagids = $request->input('tags');
+        $storage = '';
     	$user_id = 1;
     	$tagArr = [];
+
+        // 获取图片id
+        preg_match_all('/<photo>(\d+)<\/photo>/', $content, $result);
+
+        $imgArr = $result[1];
 
     	// 判断标签是否为空 标签去重复未完成
     	if($tagids != null) {
     		$tag_str = '';
-    		$tagArr = explode(',', $tagids);
+    		$tagArr = array_unique(explode(',', $tagids));
     		$tags = DB::table('tags')->select('id','tag_name')
     								->whereIn('id',$tagArr)
     								->get();
@@ -36,28 +53,20 @@ class PostController extends BaseController
     		$tag_str = mb_substr($tag_str, 0, -1);
     	}
 
-    	if($post_type == 1) {
-    		// 获取文本框中的第一张图片
+        if($imgArr) {
+            $font = DB::table('post_photos')->where('id',$imgArr[0])->first();
+            $storage = $font->url;
+        } 
 
-    		// 进行图片裁剪
-    		$storage = '';
-
-    	} elseif($post_type == 2) {
-    		// $bigpic = $request->input('bigpic');
-
-    		// 进行图片裁剪
-    		$storage = '';
-	   	} else { 
-
-	   	}
+        // 裁剪封面图片
 
 	   	$data = [
 	   		'title' => $title,
 	   		'storage' => $storage,
-	   		'bigpic' => $bigpic,
 	   		'post_type' => $post_type,
 	   		'subject' => $subject,
 	   		'content' => $content,
+            'tags' => $tag_str,
 	   		'user_id' => $user_id,
 	   		'comment' => $comment,
 	   		'publish_time' => time(),
@@ -66,10 +75,14 @@ class PostController extends BaseController
 	   	$post_id = DB::table('post')->insertGetId($data);
 
 	   	if($post_id > 0) {
+            // 更新文章图片
+            if($imgArr) {
+                DB::table('post_photos')->whereIn('id',$imgArr)->update(['post_id' => $post_id]);
+            }
 	   		// 更新我的文章数
 	   		DB::table('user_extras')->where('user_id',$user_id)->increment('posts_count',1);
 	   		// 增加标签文章数
-	   		DB::table('tags')->increment('post_count',1);
+	   		DB::table('tags')->whereIn('id',$tagArr)->increment('post_count',1);
 	   		//增加文章标签对应关系
 	   		foreach($tags as $tag) {
 	   			DB::table('user_post_tags')->insert([
@@ -78,11 +91,48 @@ class PostController extends BaseController
 	   				'tag_id' => $tag->id
 	   			]);
 	   		}
-
 	   		return response()->json(['message'=>'success','status_code' => 200]);
 	   	} else {
 	   		return response()->json(['message'=>'Publish post fail','status_code' => 500]);
 	   	}
+    }
+
+    public function edit(Request $request, $id) {
+        $post_id = $id;
+        $user_id = 1;
+        $tags = [];
+        $photos = [];
+
+        if(!$user_id) {
+            return response()->json(['message'=>'Post is null','status_code' => 500]);
+        }
+
+        $post = DB::table('post')->where(['id' => $id, 'user_id' => $user_id])->first();
+        $imgArr = DB::table('post_photos')->where(['post_id' => $post_id])->get();
+
+       if($post->tags) {
+           $tagArr = explode(';',$post->tags);
+           foreach($tagArr as $tag) {
+             $tagcollection = explode(':',$tag);
+             $tags[$tagcollection[0]] = $tagcollection[1];
+           }
+       }
+
+       foreach($imgArr as $img) {
+         $photos[$img->id] = "http://abc.com".$img->url;
+       }
+
+       $data = [
+           'id' => $post->id,
+           'title' => $post->title,
+           'content' => $post->content,
+           'comment' => $post->comment,
+           'tags' => $tags,
+           'photos' => $photos,
+       ];
+
+       return response()->json($data);
+
     }
 
     // 喜欢文章
@@ -107,7 +157,6 @@ class PostController extends BaseController
                 DB::table('post')->where('id',$post_id)->increment('like_count',1);
 
                 // 发送短消息
-
 
                 return response()->json(['message'=>'success','status_code' => 200]);
             } else {
