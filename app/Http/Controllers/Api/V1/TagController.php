@@ -95,4 +95,21 @@ class TagController extends BaseController
     		return response()->json(['message'=>'Tag already unfollowed','status_code' => 500]);
     	}
     }
+
+    public function post(Request $request, $id) 
+    {
+        $tagid = $id;
+        $page = $request->input('page',1);
+        $pageNum = 20;
+
+        $posts = DB::table('post')
+                    ->leftjoin('user_post_tags','post.id','=','user_post_tags.post_id')
+                    ->where('audit_status',0)
+                    ->where('user_post_tags.tag_id',$tagid)
+                    ->orderby('post.id','desc')
+                    ->forPage($page,$pageNum)
+                    ->get();
+        return response()->json($posts);
+    }
+    }
 }

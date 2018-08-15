@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Tool\ImageUpload;
 use JWTAuth;
 
 
@@ -87,7 +88,7 @@ class PostController extends BaseController
 	   		//增加文章标签对应关系
 	   		foreach($tags as $tag) {
 	   			DB::table('user_post_tags')->insert([
-	   				'user_id' => 1,
+	   				'user_id' => $user_id,
 	   				'post_id' => $post_id,
 	   				'tag_id' => $tag->id
 	   			]);
@@ -338,5 +339,74 @@ class PostController extends BaseController
         } else {
 
         }
+    }
+
+    public function upload(Request $request, ImageUpload $upload) {
+         $photos = $request->file('photos');
+        // $user_id = JWTAuth::parseToken()->authenticate()->id;
+         $user_id = 1;
+         $img = [];
+
+        if(! $request->hasFile('photos')) {
+            return response()->json(['message' => 'Photo is empty','status_code' => 500]);
+        }
+
+        foreach($photos as $photo) {
+            $result = $upload->post($photo,'post',$user_id);
+
+            if($result) {
+                $data = [
+                    'post_id' => 0,
+                    'user_id' => $user_id,
+                    'url' => $result['path'],
+                ];
+
+                $id = DB::table('post_photos')->insertGetId($data);
+                $img[$id] = $result['path'];
+            }
+        }
+        return response()->json($img);
+    }
+
+    public function comment(Request $request, $id) {
+        $post_id = $id;
+        $page = $request->input('page',1);
+        $pageNum = 20;
+
+        $comments = DB::table('post_comments')
+                        ->leftjoin('user_profile','post_comments.user_id','=','user_profile.uid')
+                        ->where('post_comments.post_id', $id)
+                        ->where('post_comments.masking', 0)
+                        ->orderby('post_comments.id','desc')
+                        ->forPage($page,$pageNum)
+                        ->get();
+        return response()->json($comments);
+    }
+
+    public function new(Request $request) {
+        $page = $request->input('page',1);
+        $pageNum = 20;
+
+        $posts = DB::table('post')
+                    ->leftjoin('user_profile','post.user_id','=','user_profile.uid')
+                    ->where('audit_status',0)
+                    ->orderby('id','desc')
+                    ->forPage($page,$pageNum)
+                    ->get();
+        return response()->json($posts);
+    }
+
+    public function hot(Request $request) {
+        $page = $request->input('page',1);
+        $pageNum = 20;
+
+        $posts = DB::table('post')
+                    ->leftjoin('user_profile','post.user_id','=','user_profile.uid')
+                    ->where('audit_status',0)
+                    ->orderby('hits','desc')
+                    ->orderby('id','desc')
+                    ->forPage($page,$pageNum)
+                    ->get();
+        return response()->json($posts);
     }
 }

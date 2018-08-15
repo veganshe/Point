@@ -171,4 +171,52 @@ class UserController extends BaseController
         return response()->json($tags);
     }
 
+    // 我的文章
+    public function post(Request $request, $id) {
+        $user_id = $id;
+        $page = $request->input('page',1);
+
+        // 获取我标签关注总数
+        $pageNum = 20;
+
+        // 获取我关注的所有标签id(以后更改为 Redis)
+        $posts = DB::table('post')->where('user_id',$user_id)->orderby('id','desc')->forPage($page,$pageNum)->get();
+
+        return response()->json($posts);
+    }
+
+    public function collection() {
+        $user_id = 1;
+        $page = $request->input('page',1);
+
+        $pageNum = 20;
+
+        $collections = DB::table('post')
+                ->leftjoin('post_collections','post.id','=','post_collections.post_id')
+                ->where('post_collections.user_id',$user_id)
+                ->where('post.audit_status',0)
+                ->orderby('create_time.id','desc')
+                ->forPage($page,$pageNum)
+                ->get();
+
+        return response()->json($collections);
+    }
+
+    public function comment() {
+        $user_id = 1;
+        $page = $request->input('page',1);
+
+        $pageNum = 20;
+
+        $comments = DB::table('post_comments')
+                    ->leftjoin('post','posts_comments.post_id','=','post.id')
+                    ->where('posts_comments.user_id',$user_id)
+                    ->where('post.audit_status',0)
+                    ->orderby('post_comments.id','desc')
+                    ->forPage($page,$pageNum)
+                    ->get();
+
+        return response()->json($comments);
+    }
+
 }

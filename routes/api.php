@@ -46,12 +46,13 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($ap
 
     /*-------------------- 用户模块 --------------------*/
     $api->group(['prefix' => 'user'], function($api) {
+        $api->get('/tag', 'UserController@tag');   /* 我使用的标签 */
         $api->get('/{id}', 'UserController@index');  /* 用户首页 */
         $api->post('/{id}/follow', 'UserController@follow');   /* 用户关注 */
         $api->post('/{id}/unfollow', 'UserController@unfollow');  /* 用户取消关注 */
         $api->get('/{id}/following', 'UserController@following');   /* 用户正在关注的 */
         $api->get('/{id}/followers', 'UserController@followers');   /* 别人正在关注我的 */
-        $api->get('/tag', 'UserController@tag');   /* 我使用的标签 */
+        $api->get('/{id}/post', 'UserController@post'); /* 我的文章 */
     });
 
     /*-------------------- 用户中心模块 --------------------*/
@@ -65,11 +66,15 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($ap
 
     /*-------------------- 文章模块 --------------------*/
     $api->group(['prefix' => 'post'], function($api) {
+        $api->get('/new', 'PostController@new');  /* 最新文章 */
+        $api->get('/hot', 'PostController@hot');  /* 最热文章 */
         $api->post('/publish', 'PostController@publish');  /* 文章发布 */
         $api->post('/republish', 'PostController@republish');  /* 文章修改 */
         $api->get('/{id}/edit', 'PostController@edit');  /* 修改文章 */
         $api->post('/{id}/like', 'PostController@like');  /* 文章喜欢 */
         $api->post('/{id}/unlike', 'PostController@unlike');  /* 取消文章喜欢 */
+        $api->post('/upload', 'PostController@upload'); /* 图片上传 */
+        $api->get('/{id}/comment', 'PostController@comment');  /* 取消文章喜欢 */
     });
 
     /*-------------------- 评论模块 --------------------*/
@@ -83,6 +88,7 @@ $api->version('v1', ['namespace' => 'App\Http\Controllers\Api\V1'], function($ap
     /*-------------------- 标签模块 --------------------*/
     $api->group(['prefix' => 'tag'], function($api) {
         $api->get('/index', 'TagController@index');  /* 标签首页 */
+        $api->get('/{id}', 'TagController@post');
         $api->post('/{id}/follow', 'TagController@follow');  /* 关注标签 */
         $api->post('/{id}/unfollow', 'TagController@unfollow');/* 取消标签关注 */
     });
